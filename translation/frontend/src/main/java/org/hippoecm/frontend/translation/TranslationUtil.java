@@ -18,8 +18,6 @@ package org.hippoecm.frontend.translation;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.hippoecm.repository.api.HippoNodeType;
-import org.hippoecm.repository.translation.HippoTranslationNodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +34,7 @@ public class TranslationUtil {
         // prevent instantiation
     }
 
-
-    public static boolean isNtTranslated(Node node) throws RepositoryException {
+    public static boolean isNtTranslated(final Node node) throws RepositoryException {
         if (node.isNodeType(NT_TRANSLATED)) {
             return true;
         }
