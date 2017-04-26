@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 Hippo B.V. (http://www.onehippo.com)
+ * Copyright 2010-2017 Hippo B.V. (http://www.onehippo.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@ import org.hippoecm.repository.api.StringCodec;
 
 public class NameUriField extends Panel {
 
+    private static final Duration NAME_COMPONENT_THROTTLE_DURATION = Duration.milliseconds(500);
+
     private final IModel<String> nameModel;
     private final IModel<String> urlModel;
 
@@ -55,7 +57,7 @@ public class NameUriField extends Panel {
         this(id, codecModel, null, null);
     }
 
-    public NameUriField(String id, IModel<StringCodec> codecModel, final String url, final String name) {
+    public NameUriField(final String id, final IModel<StringCodec> codecModel, final String url, final String name) {
         this(id, codecModel, url, name, null);
     }
 
@@ -85,12 +87,12 @@ public class NameUriField extends Panel {
     }
 
     private FormComponent<String> createNameComponent() {
-        FormComponent<String> nameComponent = new TextField<>("name", nameModel);
-        nameComponent.setRequired(true);
-        nameComponent.add(new OnChangeAjaxBehavior() {
+        final FormComponent<String> newNameComponent = new TextField<>("name", nameModel);
+        newNameComponent.setRequired(true);
+        newNameComponent.add(new OnChangeAjaxBehavior() {
 
             @Override
-            protected void onUpdate(AjaxRequestTarget target) {
+            protected void onUpdate(final AjaxRequestTarget target) {
                 if (!urlIsEditable) {
                     // the value of the url field is controlled by the name value, redraw when name changes
                     target.add(urlComponent);
@@ -101,11 +103,11 @@ public class NameUriField extends Panel {
             protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
                 super.updateAjaxAttributes(attributes);
                 attributes.setChannel(ajaxChannel);
-                attributes.setThrottlingSettings(new ThrottlingSettings(NameUriField.this.getPath(), Duration.milliseconds(500)));
+                attributes.setThrottlingSettings(new ThrottlingSettings(getPath(), NAME_COMPONENT_THROTTLE_DURATION));
             }
         });
-        nameComponent.setOutputMarkupId(true);
-        return nameComponent;
+        newNameComponent.setOutputMarkupId(true);
+        return newNameComponent;
     }
 
     private FormComponent<String> createUrlComponent() {
@@ -131,16 +133,16 @@ public class NameUriField extends Panel {
     }
 
     private Component createUrlAction() {
-        AjaxLink<Boolean> uriAction = new AjaxLink<Boolean>("uriAction") {
+        final AjaxLink<Boolean> uriAction = new AjaxLink<Boolean>("uriAction") {
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 urlIsEditable = !urlIsEditable;
 
                 urlComponent.modelChanging();
                 urlModel.setObject(getName());
                 urlComponent.modelChanged();
 
-                Form<?> form = urlComponent.getForm();
+                final Form<?> form = urlComponent.getForm();
                 if (form.hasFeedbackMessage()) {
                     form.getFeedbackMessages().clear();
                 }
@@ -167,7 +169,7 @@ public class NameUriField extends Panel {
 
     @Override
     protected void onBeforeRender() {
-        AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
+        final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         if (target != null) {
             target.focusComponent(nameComponent);
         }
@@ -182,7 +184,7 @@ public class NameUriField extends Panel {
     }
 
     public FormComponent[] getComponents() {
-        return new FormComponent[]{this.urlComponent, this.nameComponent};
+        return new FormComponent[]{urlComponent, nameComponent};
     }
 
     public FormComponent getUrlComponent() {
@@ -205,13 +207,28 @@ public class NameUriField extends Panel {
     // the intended codec is applied (mostly the codec model is detached so that upon the next usage it will load a
     // different StringCodec).
     public void onCodecModelDetached() {
-        AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
+        final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         if (!urlIsEditable) {
             target.add(urlComponent);
         }
     }
 
-    public void setAjaxChannel(AjaxChannel ajaxChannel) {
+    public void setAjaxChannel(final AjaxChannel ajaxChannel) {
         this.ajaxChannel = ajaxChannel;
+    }
+
+    public String getNameValue() {
+        return nameComponent.getValue();
+    }
+
+    public String getUrlValue() {
+        if (urlIsEditable) {
+            final String url = urlComponent.getValue();
+            return url != null ? url.toLowerCase() : StringUtils.EMPTY;
+        } else {
+            // read URL directly from the name component because the URL component's model may not have been updated yet
+            final String name = nameComponent.getValue();
+            return name != null ? encode(name.toLowerCase()) : StringUtils.EMPTY;
+        }
     }
 }
