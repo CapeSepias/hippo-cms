@@ -24,7 +24,7 @@
   </parent>
 
   <artifactId>hippo-cms</artifactId>
-  <version>4.2.2</version>
+  <version>4.2.3-SNAPSHOT</version>
 
   <inceptionYear>2007</inceptionYear>
 
