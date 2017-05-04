@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014-2015 Hippo B.V. (http://www.onehippo.com)
+ *  Copyright 2014-2017 Hippo B.V. (http://www.onehippo.com)
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -47,18 +47,18 @@ import org.hippoecm.frontend.widgets.AbstractView;
 
 public class SectionViewer extends Panel implements ICardView {
 
-    private IRenderService parentService;
-    private BrowserSections sections;
-    private DropDownChoice<String> select;
+    private final IRenderService parentRenderService;
+    private final BrowserSections sections;
+    private final DropDownChoice<String> select;
 
-    public SectionViewer(final String id, final BrowserSections sections, IRenderService parentRenderService) {
+    public SectionViewer(final String id, final BrowserSections sections, final IRenderService parentRenderService) {
         super(id, new Model<String>(null));
 
         setOutputMarkupId(true);
 
         add(new AttributeAppender("class", Model.of("section-viewer"), " "));
 
-        this.parentService = parentRenderService;
+        this.parentRenderService = parentRenderService;
         this.sections = sections;
 
         IDataProvider<String> sectionProvider = new IDataProvider<String>() {
@@ -72,13 +72,13 @@ public class SectionViewer extends Panel implements ICardView {
             }
 
             @Override
-            public Iterator<String> iterator(long first, long count) {
+            public Iterator<String> iterator(final long first, final long count) {
                 load();
                 return names.subList((int) first, (int) (first + count)).iterator();
             }
 
             @Override
-            public IModel<String> model(String object) {
+            public IModel<String> model(final String object) {
                 return new Model<>(object);
             }
 
@@ -99,7 +99,7 @@ public class SectionViewer extends Panel implements ICardView {
             protected void populateItem(final Item<String> item) {
                 final IBrowserSection section = sections.getSection(item.getModelObject());
 
-                section.bind(parentService, "section-view");
+                section.bind(SectionViewer.this.parentRenderService, "section-view");
 
                 final Component component = section.getComponent();
                 component.setOutputMarkupId(true);
@@ -115,13 +115,13 @@ public class SectionViewer extends Panel implements ICardView {
             }
 
             @Override
-            protected void destroyItem(Item<String> item) {
-                IBrowserSection section = sections.getSection(item.getModelObject());
+            protected void destroyItem(final Item<String> item) {
+                final IBrowserSection section = sections.getSection(item.getModelObject());
                 section.unbind();
             }
         });
 
-        String selectedBrowserSection = (String) getDefaultModelObject();
+        final String selectedBrowserSection = (String) getDefaultModelObject();
         if (selectedBrowserSection != null) {
             select(selectedBrowserSection);
         }
@@ -155,15 +155,11 @@ public class SectionViewer extends Panel implements ICardView {
         });
         form.add(select);
 
-        this.sections.addListener(new IChangeListener() {
-            public void onChange() {
-                select(sections.getActiveSectionName());
-            }
-        });
+        this.sections.addListener((IChangeListener) () -> select(sections.getActiveSectionName()));
     }
 
-    public void render(PluginRequestTarget target) {
-        for (String name : sections.getSections()) {
+    public void render(final PluginRequestTarget target) {
+        for (final String name : sections.getSections()) {
             sections.getSection(name).render(target);
         }
     }
@@ -171,9 +167,9 @@ public class SectionViewer extends Panel implements ICardView {
     @Override
     public void onBeforeRender() {
         if (sections != null) {
-            for (String extension : sections.getSections()) {
-                IBrowserSection section = sections.getSection(extension);
-                Component component = section.getComponent();
+            for (final String extension : sections.getSections()) {
+                final IBrowserSection section = sections.getSection(extension);
+                final Component component = section.getComponent();
                 component.setVisible(sections.isActive(extension));
             }
         }
@@ -194,17 +190,17 @@ public class SectionViewer extends Panel implements ICardView {
         response.render(OnDomReadyHeaderItem.forScript(selectricInit));
     }
 
-    public void onSelect(String extension) {
+    public void onSelect(final String extension) {
         sections.setActiveSectionByName(extension);
         onSectionChange(extension);
     }
 
-    public void select(String sectionName) {
+    public void select(final String sectionName) {
         if (sectionName != null) {
             sections.setActiveSectionByName(sectionName);
             onSectionChange(sectionName);
 
-            AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
+            final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
             if (target != null) {
                 target.add(this);
             }
@@ -216,7 +212,7 @@ public class SectionViewer extends Panel implements ICardView {
         if (isActive()) {
             final IBrowserSection active = sections.getActiveSection();
             if (active != null) {
-                Component focusedComponent = active.getComponent();
+                final Component focusedComponent = active.getComponent();
                 while (component != this) {
                     if (component == focusedComponent) {
                         return true;
@@ -231,14 +227,14 @@ public class SectionViewer extends Panel implements ICardView {
     }
 
     protected void onSectionChange(final String sectionName) {
-        IContextMenuManager menuManager = findParent(IContextMenuManager.class);
+        final IContextMenuManager menuManager = findParent(IContextMenuManager.class);
         if (menuManager != null) {
             menuManager.collapseAllContextMenus();
         }
     }
 
     private boolean isActive() {
-        ICardView cardView = findParent(ICardView.class);
+        final ICardView cardView = findParent(ICardView.class);
         return cardView == null || cardView.isActive(this);
     }
 
