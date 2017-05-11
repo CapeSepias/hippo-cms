@@ -33,7 +33,7 @@
 
   &.image-gallery-thumbnails tbody {
     tr {
-      display: flex;
+      display: inline-block;
       &:first-child {
         border-top: 1px solid transparent;
       }
