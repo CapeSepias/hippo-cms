@@ -23,6 +23,7 @@ import javax.jcr.Node;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 //import org.hippoecm.frontend.model.ReadOnlyModel;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.Model;
 import org.hippoecm.frontend.plugin.IPluginContext;
 import org.hippoecm.frontend.plugin.config.IPluginConfig;
@@ -57,9 +58,13 @@ public final class ImageSearchViewPlugin extends SearchViewPlugin {
 
     public ImageSearchViewPlugin(final IPluginContext context, final IPluginConfig config) {
         super(context, config);
-
         add(CssClass.append("image-gallery"));
-        add(CssClass.append(Model.of(mode == LIST ? "image-gallery-list" : "image-gallery-thumbnails")));
+        add(CssClass.append(new AbstractReadOnlyModel<String>() {
+            @Override
+            public String getObject() {
+                return mode == LIST ? "image-gallery-list" : "image-gallery-thumbnails";
+            }
+        }));
 
         addButton(new GalleryModeButton("listButton", LIST, Icon.LIST_UL));
         addButton(new GalleryModeButton("thumbnailsButton", THUMBNAILS, Icon.THUMBNAILS));
