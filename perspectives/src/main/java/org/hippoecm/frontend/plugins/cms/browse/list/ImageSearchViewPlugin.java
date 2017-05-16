@@ -22,9 +22,7 @@ import javax.jcr.Node;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-//import org.hippoecm.frontend.model.ReadOnlyModel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
-import org.apache.wicket.model.Model;
 import org.hippoecm.frontend.plugin.IPluginContext;
 import org.hippoecm.frontend.plugin.config.IPluginConfig;
 import org.hippoecm.frontend.plugins.gallery.columns.FallbackImageGalleryListColumnProvider;
@@ -112,7 +110,12 @@ public final class ImageSearchViewPlugin extends SearchViewPlugin {
             setOutputMarkupId(true);
 
             add(HippoIcon.fromSprite("icon", icon));
-            add(CssClass.append(Model.of(( mode == activatedMode ? "gallery-mode-active" : ""))));
+            add(CssClass.append(new AbstractReadOnlyModel<String>() {
+                @Override
+                public String getObject() {
+                    return mode == activatedMode ? "gallery-mode-active" : "";
+                }
+            }));
         }
 
         @Override
@@ -121,5 +124,4 @@ public final class ImageSearchViewPlugin extends SearchViewPlugin {
             ImageSearchViewPlugin.this.onModelChanged();
         }
     }
-
 }
