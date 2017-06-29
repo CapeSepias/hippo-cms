@@ -45,8 +45,15 @@ import org.hippoecm.frontend.model.properties.JcrPropertyModel;
 import org.hippoecm.frontend.plugins.console.icons.IconLabel;
 import org.hippoecm.frontend.plugins.console.icons.JcrNodeIcon;
 import org.hippoecm.frontend.widgets.TextFieldWidget;
+import org.onehippo.cm.ConfigurationService;
+import org.onehippo.cm.model.ConfigurationItemCategory;
+import org.onehippo.cm.model.ConfigurationModel;
+import org.onehippo.cm.model.ContentDefinition;
+import org.onehippo.cms7.services.HippoServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.onehippo.cm.model.util.ConfigurationModelUtils.getCategoryForNode;
 
 class NodeEditor extends Form<Node> {
     private static final long serialVersionUID = 1L;
@@ -63,6 +70,12 @@ class NodeEditor extends Form<Node> {
     private String uuid;
     @SuppressWarnings("unused FieldCanBeLocal")
     private String nodePath;
+    @SuppressWarnings("unused FieldCanBeLocal")
+    private String category;
+    @SuppressWarnings("unused FieldCanBeLocal")
+    private String origin;
+    private String primaryTypeOrigin;
+    private String mixinTypesOrigin;
 
     private NamespaceProvider namespaceProvider;
     private NamespacePropertiesEditor namespacePropertiesEditor;
@@ -83,15 +96,25 @@ class NodeEditor extends Form<Node> {
         add(new Label("nodePath", new PropertyModel<String>(this, "nodePath")));
         add(new Label("name", new PropertyModel<String>(this, "name")));
         add(new Label("uuid", new PropertyModel<String>(this, "uuid")));
+        add(new Label("category", new PropertyModel<String>(this, "category")));
+
+        // TODO: upgrade this to a proper component with AjaxLinks to the baseline for each origin source file
+        add(new Label("origin", new PropertyModel<String>(this, "origin")));
 
         add(new ToggleHeader("toggle-header-1", "1", "Types"));
         final TextFieldWidget primaryTypeWidget = new TextFieldWidget("primarytype", new PropertyModel<>(this, "primaryType"));
         primaryTypeWidget.setSize("40");
         add(primaryTypeWidget);
 
+        // TODO: upgrade this to a proper component with AjaxLinks to the baseline for each origin source file
+        add(new Label("primarytypeorigin", new PropertyModel<>(this, "primaryTypeOrigin")));
+
         typesEditor = new NodeTypesEditor("mixintypes", model);
         add(typesEditor);
         add(new Label("types", new PropertyModel<String>(typesEditor, "mixinTypes")));
+
+        // TODO: upgrade this to a proper component with AjaxLinks to the baseline for each origin source file
+        add(new Label("mixintypesorigin", new PropertyModel<>(this, "mixinTypesOrigin")));
 
         add(new ToggleHeader("toggle-header-2", "2", "Properties"));
         namespaceProvider = new NamespaceProvider(new EmptyDataProvider<>());
@@ -115,6 +138,16 @@ class NodeEditor extends Form<Node> {
                 name = node.getName();
                 uuid = node.getIdentifier();
 
+                // todo: move some of this to constructor
+                final ConfigurationService cfgService = HippoServiceRegistry.getService(ConfigurationService.class);
+                final ConfigurationModel cfgModel = cfgService.getRuntimeConfigurationModel();
+                final ConfigurationItemCategory cat = getCategoryForNode(nodePath, cfgModel);
+                category = cat.toString();
+                origin = PropertiesEditor.getNodeOrigin(nodePath, cfgModel);
+
+                primaryTypeOrigin = PropertiesEditor.getPropertyOrigin((nodePath.equals("/")? "": nodePath) + "/jcr:primaryType");
+                mixinTypesOrigin = PropertiesEditor.getPropertyOrigin((nodePath.equals("/")? "": nodePath) + "/jcr:mixinTypes");
+
                 typesEditor.setModel(getModel());
                 typesEditor.setVisible(true);
 
@@ -126,6 +159,10 @@ class NodeEditor extends Form<Node> {
         } else {
             typesEditor.setVisible(false);
             namespacePropertiesEditor.setVisible(false);
+            category = "";
+            origin = "";
+            primaryTypeOrigin = "";
+            mixinTypesOrigin = "";
         }
     }
 

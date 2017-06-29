@@ -19,7 +19,7 @@
     <h3 wicket:id="toggle-header-0">[UUID]</h3>
     <table class="editor-general-table" id="toggle-box-0" style="display:block;">
       <tr>
-        <td rowspan="3" style="vertical-align: top;"><span class="icon" wicket:id="nodeIcon"></span></td>
+        <td rowspan="5" style="vertical-align: top;"><span class="icon" wicket:id="nodeIcon"></span></td>
         <td class="general-name">Path: </td>
         <td><span wicket:id="nodePath"/></td>
       </tr>
@@ -31,16 +31,26 @@
         <td class="general-name">UUID: </td>
         <td><span wicket:id="uuid"/></td>
       </tr>
+      <tr>
+        <td class="general-name">Category: </td>
+        <td><span wicket:id="category"/></td>
+      </tr>
+      <tr>
+        <td class="general-name">Origin: </td>
+        <td><span wicket:id="origin"/></td>
+      </tr>
     </table>
     <h3 wicket:id="toggle-header-1">[Types]</h3>
     <table class="editor-types-table" id="toggle-box-1" style="display:block;">
       <tr class="type-primary">
         <td class="type-name">Primary: </td>
         <td class="type-value"><span wicket:id="primarytype"/></td>
+        <td class="property-type"><span wicket:id="primarytypeorigin"/></td>
       </tr>
       <tr class="type-mixin">
         <td class="type-name">Mixin: </td>
         <td class="type-value"><span wicket:id="types"/></td>
+        <td class="property-type"><span wicket:id="mixintypesorigin"/></td>
       </tr>
     </table>
 
@@ -56,6 +66,7 @@
             <a wicket:id="delete">
               <span class="remove-icon fa fa-times"/>
             </a>
+            <div wicket:id="origin" class="property-type" style="margin: 4px 0 4px 0">Property origin</div>
             <table class="property-value-container" width="100%" wicket:id="values-container">
               <tr>
                 <td width="100%">

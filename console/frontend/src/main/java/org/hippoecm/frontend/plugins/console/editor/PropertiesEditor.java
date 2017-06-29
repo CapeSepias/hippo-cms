@@ -38,8 +38,17 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.hippoecm.frontend.model.properties.JcrPropertyModel;
 import org.hippoecm.frontend.plugins.standards.list.resolvers.TitleAttribute;
 import org.hippoecm.frontend.session.UserSession;
+import org.onehippo.cm.ConfigurationService;
+import org.onehippo.cm.model.ConfigurationItemCategory;
+import org.onehippo.cm.model.ConfigurationModel;
+import org.onehippo.cm.model.ConfigurationProperty;
+import org.onehippo.cm.model.ContentDefinition;
+import org.onehippo.cms7.services.HippoServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.onehippo.cm.model.util.ConfigurationModelUtils.getCategoryForNode;
+import static org.onehippo.cm.model.util.ConfigurationModelUtils.getCategoryForProperty;
 
 public class PropertiesEditor extends DataView<Property> {
 
@@ -78,6 +87,10 @@ public class PropertiesEditor extends DataView<Property> {
 
             item.add(new Label("type", PropertyType.nameFromValue(model.getProperty().getType())));
 
+            // TODO: upgrade this to a proper component with AjaxLinks to the baseline for each origin source file
+            String origin = getPropertyOrigin(model.getProperty().getPath());
+            item.add(new Label("origin", origin).setVisible(!origin.equals("")));
+
             WebMarkupContainer valuesContainer = new WebMarkupContainer("values-container");
             valuesContainer.setOutputMarkupId(true);
             item.add(valuesContainer);
@@ -94,6 +107,58 @@ public class PropertiesEditor extends DataView<Property> {
         } catch (RepositoryException e) {
             log.error(e.getMessage());
         }
+    }
+
+    public static String getPropertyOrigin(final String propertyPath) {
+        // todo: move some of this to constructor
+        final ConfigurationService cfgService = HippoServiceRegistry.getService(ConfigurationService.class);
+        final ConfigurationModel cfgModel = cfgService.getRuntimeConfigurationModel();
+
+        String nodePath = StringUtils.substringBeforeLast(propertyPath, "/");
+        if (nodePath.equals("")) {
+            nodePath = "/";
+        }
+        final String nodeOrigin = getNodeOrigin(nodePath, cfgModel);
+
+        final ConfigurationItemCategory propCat = getCategoryForProperty(propertyPath, cfgModel);
+        final ConfigurationProperty cfgProperty = cfgModel.resolveProperty(propertyPath);
+        String origin = "";
+        if (propCat.equals(ConfigurationItemCategory.CONFIG) && cfgProperty != null) {
+            origin = cfgProperty.getOrigin();
+        }
+        else if (propCat.equals(ConfigurationItemCategory.CONTENT)) {
+            String originPath = "";
+            for (ContentDefinition def : cfgModel.getContentDefinitions()) {
+                if (propertyPath.startsWith(def.getRootPath()) && (def.getRootPath().length() > originPath.length())) {
+                    origin = def.getOrigin();
+                    originPath = def.getRootPath();
+                }
+            }
+        }
+        return nodeOrigin.equals(origin)? "": origin;
+    }
+
+    public static String getNodeOrigin(final String nodePath, final ConfigurationModel cfgModel) {
+        final ConfigurationItemCategory nodeCat = getCategoryForNode(nodePath, cfgModel);
+        String nodeOrigin = "";
+        if (nodeCat.equals(ConfigurationItemCategory.CONFIG)) {
+            nodeOrigin = cfgModel.resolveNode(nodePath).getOrigin();
+        }
+        else if (nodeCat.equals(ConfigurationItemCategory.CONTENT)) {
+            // todo: move this to ConfigurationModelUtils
+            nodeOrigin = "";
+            String originPath = "";
+            for (ContentDefinition def : cfgModel.getContentDefinitions()) {
+                if (nodePath.startsWith(def.getRootPath()) && (def.getRootPath().length() > originPath.length())) {
+                    nodeOrigin = def.getOrigin();
+                    originPath = def.getRootPath();
+                }
+            }
+        }
+        else {
+            nodeOrigin = "<runtime change>";
+        }
+        return nodeOrigin;
     }
 
     /**
