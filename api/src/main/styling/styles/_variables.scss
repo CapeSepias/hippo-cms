@@ -280,6 +280,14 @@ $file-upload-progress:              $success;
 $file-upload-error:                 $danger;
 $file-upload-stripe-bg:             $lighter-shade;
 
+// Diff colors
+$diff-added:                                  #ccffcc;
+$diff-added-border:                           $diff-added;
+$diff-removed:                                #fdc6c6;
+$diff-removed-border:                         $diff-removed;
+$diff-changed:                                #d9edff;
+$diff-changed-border:                         #000099;
+
 // supported mimetypes that have a specific icon
 $mimetypes: (
   audio
