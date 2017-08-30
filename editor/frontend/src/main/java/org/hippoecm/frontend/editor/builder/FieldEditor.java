@@ -231,6 +231,34 @@ public class FieldEditor extends Panel {
         final Label orderedLabel = new Label("ordered-label", new ResourceModel("ordered"));
         addCheckBoxCssClass(orderedLabel, orderedCheckBox);
         add(orderedLabel);
+
+        addFormField(new LockedTextField<>("visibilityExpr", new IModel<String>() {
+            @Override
+            public String getObject() {
+                return getDescriptor().getVisibilityExpression();
+            }
+            @Override
+            public void setObject(final String visibilityExpression) {
+                getDescriptor().setVisibilityExpression(visibilityExpression);
+            }
+            @Override
+            public void detach() {
+            }
+        }));
+        addFormField(new LockedTextField<>("enabledExpr", new IModel<String>() {
+            @Override
+            public String getObject() {
+                return getDescriptor().getEnabledExpression();
+            }
+            @Override
+            public void setObject(final String enabledExpression) {
+                getDescriptor().setEnabledExpression(enabledExpression);
+            }
+            @Override
+            public void detach() {
+            }
+        }));
+
     }
 
     IFieldDescriptor getDescriptor() {

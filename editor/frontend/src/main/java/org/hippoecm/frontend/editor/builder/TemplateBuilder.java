@@ -282,6 +282,26 @@ public class TemplateBuilder implements IDetachable, IObservable {
             delegate.removeValidator(validator);
         }
 
+        @Override
+        public String getVisibilityExpression() {
+            return delegate.getVisibilityExpression();
+        }
+
+        @Override
+        public void setVisibilityExpression(String visibilityExpression) {
+            delegate.setVisibilityExpression(visibilityExpression);
+        }
+
+        @Override
+        public String getEnabledExpression() {
+            return delegate.getEnabledExpression();
+        }
+
+        @Override
+        public void setEnabledExpression(String enabledExpression) {
+            delegate.setEnabledExpression(enabledExpression);
+        }
+
         private IObservationContext obContext;
         private IObserver observer;
 

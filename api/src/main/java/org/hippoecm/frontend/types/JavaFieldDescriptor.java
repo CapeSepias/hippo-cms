@@ -44,6 +44,9 @@ public class JavaFieldDescriptor implements IFieldDescriptor, IDetachable {
     private boolean ordered;
     private boolean primary;
 
+    private String visibilityExpression;
+    private String enabledExpression;
+
     private IObservationContext obContext;
 
     public JavaFieldDescriptor(String prefix, ITypeDescriptor type) {
@@ -67,6 +70,9 @@ public class JavaFieldDescriptor implements IFieldDescriptor, IDetachable {
         this.ordered = source.isOrdered();
         this.primary = source.isPrimary();
         this.protect = source.isProtected();
+
+        this.visibilityExpression = source.getVisibilityExpression();
+        this.enabledExpression = source.getEnabledExpression();
     }
 
     public String getName() {
@@ -177,6 +183,26 @@ public class JavaFieldDescriptor implements IFieldDescriptor, IDetachable {
 
     public void removeValidator(String validator) {
         validators.remove(validator);
+    }
+
+    @Override
+    public String getVisibilityExpression() {
+        return visibilityExpression;
+    }
+
+    @Override
+    public void setVisibilityExpression(String visibilityExpression) {
+        this.visibilityExpression = visibilityExpression;
+    }
+
+    @Override
+    public String getEnabledExpression() {
+        return enabledExpression;
+    }
+
+    @Override
+    public void setEnabledExpression(String enabledExpression) {
+        this.enabledExpression = enabledExpression;
     }
 
     public void detach() {
