@@ -35,6 +35,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 import org.hippoecm.frontend.PluginRequestTarget;
 import org.hippoecm.frontend.editor.ITemplateEngine;
 import org.hippoecm.frontend.editor.TemplateEngineException;
@@ -332,6 +334,13 @@ public abstract class AbstractFieldPlugin<P extends Item, C extends IModel> exte
             restartTemplates = false;
         }
         super.onBeforeRender();
+
+        if (!isFieldVisible()) {
+            hideField();
+        }
+        if (!isFieldEnabled()) {
+            disableField();
+        }
     }
 
     private AbstractProvider<P, C> getProvider(IModel<Node> model) {
@@ -593,5 +602,49 @@ public abstract class AbstractFieldPlugin<P extends Item, C extends IModel> exte
             log.error("Exception determining whether type " + type + " is abstract", e);
         }
         return true;
+    }
+
+    protected boolean isFieldVisible() {
+        final IFieldDescriptor field = getFieldHelper().getField();
+        if (field != null) {
+            // TODO: Use JEXL2 Sandbox expression evaluator with built-in models
+            if ("false".equals(field.getVisibilityExpression())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected void hideField() {
+        visitChildren(Component.class, new IVisitor<Component, Object>() {
+            @Override
+            public void component(Component component, IVisit<Object> visit) {
+                if (component.isVisibilityAllowed()) {
+                    component.setVisible(false);
+                }
+            }
+        });
+    }
+
+    protected boolean isFieldEnabled() {
+        final IFieldDescriptor field = getFieldHelper().getField();
+        if (field != null) {
+            // TODO: Use JEXL2 Sandbox expression evaluator with built-in models
+            if ("false".equals(field.getEnabledExpression())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected void disableField() {
+        visitChildren(Component.class, new IVisitor<Component, Object>() {
+            @Override
+            public void component(Component component, IVisit<Object> visit) {
+                if (component.isEnableAllowed()) {
+                    component.setEnabled(false);
+                }
+            }
+        });
     }
 }
