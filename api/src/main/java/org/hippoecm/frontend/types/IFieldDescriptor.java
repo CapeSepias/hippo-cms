@@ -112,12 +112,6 @@ public interface IFieldDescriptor extends IClusterable, IObservable {
      */
     String getVisibilityExpression();
 
-    /**
-     * Return expression to evaluate whether or not this field should be enabled.
-     * @return expression to evaluate whether or not this field should be enabled
-     */
-    String getEnabledExpression();
-
     // The following methods are only valid in a writable field descriptor.
     // I.e. outside of the context of the document type editor, they may not be invoked.
 
@@ -138,7 +132,5 @@ public interface IFieldDescriptor extends IClusterable, IObservable {
     void removeValidator(String validator);
 
     void setVisibilityExpression(String visibilityExpression);
-
-    void setEnabledExpression(String enabledExpression);
 
 }

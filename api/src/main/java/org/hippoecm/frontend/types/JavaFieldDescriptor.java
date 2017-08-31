@@ -45,7 +45,6 @@ public class JavaFieldDescriptor implements IFieldDescriptor, IDetachable {
     private boolean primary;
 
     private String visibilityExpression;
-    private String enabledExpression;
 
     private IObservationContext obContext;
 
@@ -72,7 +71,6 @@ public class JavaFieldDescriptor implements IFieldDescriptor, IDetachable {
         this.protect = source.isProtected();
 
         this.visibilityExpression = source.getVisibilityExpression();
-        this.enabledExpression = source.getEnabledExpression();
     }
 
     public String getName() {
@@ -193,16 +191,6 @@ public class JavaFieldDescriptor implements IFieldDescriptor, IDetachable {
     @Override
     public void setVisibilityExpression(String visibilityExpression) {
         this.visibilityExpression = visibilityExpression;
-    }
-
-    @Override
-    public String getEnabledExpression() {
-        return enabledExpression;
-    }
-
-    @Override
-    public void setEnabledExpression(String enabledExpression) {
-        this.enabledExpression = enabledExpression;
     }
 
     public void detach() {

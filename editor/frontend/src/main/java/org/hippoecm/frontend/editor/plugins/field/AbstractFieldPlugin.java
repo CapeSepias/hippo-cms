@@ -338,9 +338,6 @@ public abstract class AbstractFieldPlugin<P extends Item, C extends IModel> exte
         if (!isFieldVisible()) {
             hideField();
         }
-        if (!isFieldEnabled()) {
-            disableField();
-        }
     }
 
     private AbstractProvider<P, C> getProvider(IModel<Node> model) {
@@ -604,6 +601,11 @@ public abstract class AbstractFieldPlugin<P extends Item, C extends IModel> exte
         return true;
     }
 
+    /**
+     * Return true if this field is visible. True by default. A derived field plugin may override this to control
+     * its visibility in a more sophisticated way.
+     * @return true if this field is visible. True by default.
+     */
     protected boolean isFieldVisible() {
         final IFieldDescriptor field = getFieldHelper().getField();
         if (field != null) {
@@ -615,36 +617,14 @@ public abstract class AbstractFieldPlugin<P extends Item, C extends IModel> exte
         return true;
     }
 
+    /**
+     * Hide this field plugin. This method is invoked if {@link #isFieldVisible()} returns false.
+     * A derived field plugin may override this to control its visibility in a more sophisticated way.
+     * e.g, hiding any client-side UI widgets that are not automatically controlled by Wicket MarkupContainer
+     * in addition, for instance.
+     */
     protected void hideField() {
-        visitChildren(Component.class, new IVisitor<Component, Object>() {
-            @Override
-            public void component(Component component, IVisit<Object> visit) {
-                if (component.isVisibilityAllowed()) {
-                    component.setVisible(false);
-                }
-            }
-        });
+        setVisible(false);
     }
 
-    protected boolean isFieldEnabled() {
-        final IFieldDescriptor field = getFieldHelper().getField();
-        if (field != null) {
-            // TODO: Use JEXL2 Sandbox expression evaluator with built-in models
-            if ("false".equals(field.getEnabledExpression())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    protected void disableField() {
-        visitChildren(Component.class, new IVisitor<Component, Object>() {
-            @Override
-            public void component(Component component, IVisit<Object> visit) {
-                if (component.isEnableAllowed()) {
-                    component.setEnabled(false);
-                }
-            }
-        });
-    }
 }

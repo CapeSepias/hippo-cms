@@ -245,19 +245,6 @@ public class FieldEditor extends Panel {
             public void detach() {
             }
         }));
-        addFormField(new LockedTextField<>("enabledExpr", new IModel<String>() {
-            @Override
-            public String getObject() {
-                return getDescriptor().getEnabledExpression();
-            }
-            @Override
-            public void setObject(final String enabledExpression) {
-                getDescriptor().setEnabledExpression(enabledExpression);
-            }
-            @Override
-            public void detach() {
-            }
-        }));
 
     }
 

@@ -166,16 +166,6 @@ public class JcrFieldDescriptor extends JcrObject implements IFieldDescriptor {
     }
 
     @Override
-    public String getEnabledExpression() {
-        return getString(HippoNodeType.HIPPO_ENABLED_EXPR);
-    }
-
-    @Override
-    public void setEnabledExpression(String enabledExpression) {
-        setString(HippoNodeType.HIPPO_ENABLED_EXPR, enabledExpression);
-    }
-
-    @Override
     protected void processEvents(IObservationContext context, Iterator<? extends IEvent> events) {
         EventCollection<TypeDescriptorEvent> collection = new EventCollection<TypeDescriptorEvent>();
         collection.add(new TypeDescriptorEvent(type, this, TypeDescriptorEvent.EventType.FIELD_CHANGED));
