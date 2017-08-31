@@ -611,8 +611,7 @@ public abstract class AbstractFieldPlugin<P extends Item, C extends IModel> exte
         if (field != null) {
             final String expr = field.getVisibilityExpression();
             if (StringUtils.isNotBlank(expr)) {
-                final EditorExpressionEngine exprEngine = EditorExpressionEngine.getInstance();
-                return exprEngine.evaluateBoolean(exprEngine.createDefaultEditorContext(), expr, true);
+                return EditorExpressionEngine.getInstance().evaluateBoolean(expr, true);
             }
         }
         return true;

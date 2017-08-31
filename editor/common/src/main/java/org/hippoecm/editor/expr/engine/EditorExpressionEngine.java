@@ -15,15 +15,13 @@
  */
 package org.hippoecm.editor.expr.engine;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
-import org.hippoecm.editor.expr.model.UserModel;
+import org.apache.commons.jexl3.introspection.JexlSandbox;
+import org.hippoecm.editor.expr.model.sandbox.UserModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,32 +38,50 @@ public class EditorExpressionEngine {
         return LazyHolder.INSTANCE;
     }
 
+    // NOTE: package private only for unit testing.
+    static JexlSandbox createDefaultJexlSandbox() {
+        // Set blacklist mode.
+        JexlSandbox sandbox = new JexlSandbox(false);
+        sandbox.white(UserModel.class.getName());
+        return sandbox;
+    }
+
     private JexlEngine jexl;
 
     private EditorExpressionEngine() {
-        jexl = new JexlBuilder().create();
+        this(createDefaultJexlSandbox());
     }
 
-    public Map<String, Object> createDefaultEditorContext() {
-        Map<String, Object> contextMap = new HashMap<>();
-        UserModel userModel = new UserModel();
-        contextMap.put("user", userModel);
-        return contextMap;
+    // NOTE: package private only for unit testing.
+    EditorExpressionEngine(JexlSandbox sandbox) {
+        jexl = new JexlBuilder().sandbox(sandbox).strict(true).create();
     }
 
-    public Object evaluate(final Map<String, Object> context, final String expr) throws RuntimeException {
-        JexlExpression jexlExpr = jexl.createExpression(expr);
-        JexlContext jexlContext = new MapContext(context);
-        return jexlExpr.evaluate(jexlContext);
+    public Object evaluate(final String expr) throws RuntimeException {
+        return evaluate(createDefaultEditorJexlContext(), expr);
     }
 
-    public boolean evaluateBoolean(final Map<String, Object> context, final String expr, final boolean defaultValue) {
+    public boolean evaluateBoolean(final String expr, final boolean defaultValue) {
         try {
-            Boolean ret = (Boolean) evaluate(context, expr);
+            Boolean ret = (Boolean) evaluate(expr);
             return ret.booleanValue();
         } catch (Exception e) {
             log.error("Failed to evaluate expression: '{}'", expr, e);
         }
         return defaultValue;
     }
+
+    // NOTE: protected only for unit testing at the moment.
+    protected Object evaluate(final JexlContext jexlContext, final String expr) throws RuntimeException {
+        JexlExpression jexlExpr = jexl.createExpression(expr);
+        return jexlExpr.evaluate(jexlContext);
+    }
+
+    private JexlContext createDefaultEditorJexlContext() {
+        JexlContext jexlContext = new MapContext();
+        UserModel userModel = new UserModel();
+        jexlContext.set("user", userModel);
+        return jexlContext;
+    }
+
 }
