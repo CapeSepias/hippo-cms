@@ -26,6 +26,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.feedback.ContainerFeedbackMessageFilter;
@@ -35,8 +36,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.cycle.RequestCycle;
-import org.apache.wicket.util.visit.IVisit;
-import org.apache.wicket.util.visit.IVisitor;
+import org.hippoecm.editor.expr.engine.EditorExpressionEngine;
 import org.hippoecm.frontend.PluginRequestTarget;
 import org.hippoecm.frontend.editor.ITemplateEngine;
 import org.hippoecm.frontend.editor.TemplateEngineException;
@@ -609,9 +609,10 @@ public abstract class AbstractFieldPlugin<P extends Item, C extends IModel> exte
     protected boolean isFieldVisible() {
         final IFieldDescriptor field = getFieldHelper().getField();
         if (field != null) {
-            // TODO: Use JEXL2 Sandbox expression evaluator with built-in models
-            if ("false".equals(field.getVisibilityExpression())) {
-                return false;
+            final String expr = field.getVisibilityExpression();
+            if (StringUtils.isNotBlank(expr)) {
+                final EditorExpressionEngine exprEngine = EditorExpressionEngine.getInstance();
+                return exprEngine.evaluateBoolean(exprEngine.createDefaultEditorContext(), expr, true);
             }
         }
         return true;
