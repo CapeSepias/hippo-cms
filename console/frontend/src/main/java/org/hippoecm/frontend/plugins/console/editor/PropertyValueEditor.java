@@ -74,6 +74,12 @@ class PropertyValueEditor extends DataView {
             final JcrPropertyValueModel valueModel = (JcrPropertyValueModel) item.getModel();
             Component valueEditor = createValueEditor(valueModel);
 
+            // HCM baseline data should not be editable
+            final String propertyPath = propertyModel.getProperty().getPath();
+            if (propertyPath.startsWith("/hcm:hcm")) {
+                valueEditor.setEnabled(false);
+            }
+
             item.add(valueEditor);
 
             final AjaxLink removeLink = new AjaxLink("remove") {
