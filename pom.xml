@@ -85,12 +85,12 @@
     <notice.project.name>Hippo CMS</notice.project.name>
 
     <hippo.jackrabbit.version>2.14.0-h2</hippo.jackrabbit.version>
-    <hippo.commons.version>4.0.0</hippo.commons.version>
-    <hippo.utilities.version>4.0.0</hippo.utilities.version>
-    <hippo.services.version>4.0.1</hippo.services.version>
-    <hippo.services.htmlprocessor.version>1.0.0</hippo.services.htmlprocessor.version>
-    <hippo.repository.version>5.0.1</hippo.repository.version>
-    <hippo.configuration-management.version>1.0.1</hippo.configuration-management.version>
+    <hippo.commons.version>4.0.1</hippo.commons.version>
+    <hippo.utilities.version>4.0.2</hippo.utilities.version>
+    <hippo.services.version>4.0.2</hippo.services.version>
+    <hippo.services.htmlprocessor.version>1.0.1</hippo.services.htmlprocessor.version>
+    <hippo.repository.version>5.0.2</hippo.repository.version>
+    <hippo.configuration-management.version>1.0.2</hippo.configuration-management.version>
 
     <!-- Test dependencies  -->
     <easymock.version>3.4</easymock.version>
